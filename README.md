@@ -38,7 +38,7 @@ Lastly, pick a representative point inside each building polygon. This is the ou
 
 ![Representative Points](images/points.png)
 
-[Example GeoJSON File (Islington)](./output/islington.json)
+[Example GeoJSON File (Islington)](./output/islington.geojson)
 
 ## UPRN Method
 
@@ -52,7 +52,7 @@ It includes many addresses which are missed by the previous approach because the
 
 The overall accuracy of these points seems to be roughly equivalent to the previous method.
 
-[Example GeoJSON File (Islington)](./output/islington.json)
+[Example GeoJSON File (Islington)](./output/islington-uprn.geojson)
 
 ## Processing Notes
 
