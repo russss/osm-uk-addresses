@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:13-3.1-alpine
+    command: -c shared_preload_libraries=pg_stat_statements
+    environment:
+      POSTGRES_DB: osm_addresses
+      POSTGRES_USER: osm
+      POSTGRES_PASSWORD: osm
+      PROJ_NETWORK: "on"
+    ports:
+      - "5433:5432" 
