@@ -4,6 +4,8 @@ from starlette.applications import Starlette
 from starlette.config import Config
 from starlette.exceptions import HTTPException
 from starlette.responses import Response, FileResponse
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
 
@@ -65,6 +67,10 @@ routes = [
     Route("/addresses/{z:int}/{x:int}/{y:int}.json", endpoint=serve, methods=["GET"]),
 ]
 
+middleware = [
+    Middleware(CORSMiddleware, allow_origins=['*'])
+]
+
 app = Starlette(
-    routes=routes, on_startup=[database.connect], on_shutdown=[database.disconnect]
+    routes=routes, middleware=middleware, on_startup=[database.connect], on_shutdown=[database.disconnect]
 )
