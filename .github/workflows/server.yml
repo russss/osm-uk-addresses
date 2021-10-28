@@ -5,7 +5,7 @@ on:
     branches: main
     paths:
       - 'server/**'
-      - '.github/actions/server.yml'
+      - '.github/workflows/server.yml'
 
 jobs:
   build:
