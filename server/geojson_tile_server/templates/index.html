@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>OSM Addresses</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Helvetica, sans-serif;
+      }
+
+      blockquote {
+        font-family: monospace;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        background-color: #eee;
+      }
+
+      #map {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Layers</h2>
+    <ul>
+      {% for layer in layers %}
+      <li>
+        <a href="/{{ layer }}/17/65492/43567.json">{{ layer }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

@@ -1,9 +1,11 @@
+import re
 import databases
 import mercantile
 from starlette.applications import Starlette
 from starlette.config import Config
 from starlette.exceptions import HTTPException
-from starlette.responses import Response, FileResponse
+from starlette.responses import Response
+from starlette.templating import Jinja2Templates
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route, Mount
@@ -11,6 +13,7 @@ from starlette.staticfiles import StaticFiles
 
 
 config = Config(".env")
+templates = Jinja2Templates(directory="templates")
 DATABASE_URL = config("DATABASE_URL")
 
 
@@ -72,11 +75,14 @@ async def serve(request):
 
 
 async def index(request):
-    return FileResponse("index.html")
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request, "layers": LAYERS.keys()},
+    )
 
 
 routes = [
-    #  Route('/', endpoint=index, name="index", methods=["GET"]),
+    Route("/", endpoint=index, name="index", methods=["GET"]),
     #  Mount('/static', app=StaticFiles(directory='static'), name="static"),
     Route(
         "/{layer:str}/{z:int}/{x:int}/{y:int}.json",
