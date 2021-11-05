@@ -13,15 +13,15 @@
     },
     "addresses": {
       "type": "vector",
-      "url": "http://localhost:8000/addresses/mvt.json"
+      "url": "/addresses/mvt.json"
     },
     "inspire": {
       "type": "vector",
-      "url": "http://localhost:8000/inspire/mvt.json"
+      "url": "/inspire/mvt.json"
     },
     "split_buildings": {
       "type": "vector",
-      "url": "http://localhost:8000/split_buildings/mvt.json"
+      "url": "/split_buildings/mvt.json"
     }
   },
   "sprite": "https://maputnik.github.io/osm-liberty/sprites/osm-liberty",
