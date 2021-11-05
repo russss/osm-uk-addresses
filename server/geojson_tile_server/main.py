@@ -38,6 +38,11 @@ LAYERS = {
             FROM split_buildings
             WHERE ST_Intersects(ST_Transform({bbox}, 27700), geometry)
     """,
+    "uprn": """
+        SELECT ST_Transform(geom, {srid}) AS geometry, uprn
+            FROM uprn
+            WHERE ST_Intersects(ST_Transform({bbox}, 27700), geom)
+    """,
 }
 
 FORMATS = {
