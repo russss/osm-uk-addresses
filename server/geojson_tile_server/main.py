@@ -1,4 +1,4 @@
-import re
+import logging
 import databases
 import mercantile
 from starlette.applications import Starlette
@@ -11,16 +11,16 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
 
-
+log = logging.getLogger(__name__)
 config = Config(".env")
 templates = Jinja2Templates(directory="templates")
 DATABASE_URL = config("DATABASE_URL")
-
-
 database = databases.Database(DATABASE_URL)
 
 MIN_ZOOM = 16
 MAX_ZOOM = 21
+
+fields = {}
 
 LAYERS = {
     "addresses": """
@@ -94,10 +94,11 @@ async def serve(request):
             SELECT json_build_object('type', 'FeatureCollection', 'features', json_agg(ST_AsGeoJSON(row)::json))
             FROM row"""
     elif format == "mvt":
+        field_sql = ", ".join(fields[layer])
         layer_sql = f"""
             WITH mvtgeom AS (
                 WITH row AS ({sql})
-                SELECT ST_AsMVTGeom(geometry, ST_TileEnvelope({z}, {x}, {y}), buffer => 64) AS geom, inspireid AS id FROM row
+                SELECT ST_AsMVTGeom(geometry, ST_TileEnvelope({z}, {x}, {y}), buffer => 64) AS geom, {field_sql} FROM row
             )
             SELECT ST_AsMVT(mvtgeom.*, '{layer}') FROM mvtgeom
         """
@@ -140,6 +141,16 @@ async def layers_list(request):
     )
 
 
+async def load_fields():
+    log.info("Loading field names...")
+    bbox_sql = "ST_MakeEnvelope(-180, -90, 180, 90, 4326)"
+    for layer, sql in LAYERS.items():
+        sql = sql.format(bbox=bbox_sql, srid=4326)
+        row = await database.fetch_one(query=sql + "LIMIT 1")
+        fields[layer] = set(row.keys()) - {"geometry"}
+    log.info("Field names loaded")
+
+
 routes = [
     Route("/", endpoint=index, name="index", methods=["GET"]),
     Route("/layers", endpoint=layers_list, name="layers_list", methods=["GET"]),
@@ -158,6 +169,6 @@ middleware = [Middleware(CORSMiddleware, allow_origins=["*"])]
 app = Starlette(
     routes=routes,
     middleware=middleware,
-    on_startup=[database.connect],
+    on_startup=[database.connect, load_fields],
     on_shutdown=[database.disconnect],
 )

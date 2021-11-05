@@ -9,6 +9,7 @@
         height: 100%;
         margin: 0;
         font-family: Helvetica, sans-serif;
+        color: #333;
       }
 
       header {
@@ -35,6 +36,32 @@
         background-color: rgba(255, 255, 255, 0.8);
         -webkit-transform: translate(-50%, -50%);
         transform: translate(-50%, -50%);
+      }
+
+      #layer-switcher {
+        position: absolute;
+        right: 0px;
+        top: 5px;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 3px;
+        border-radius: 3px;
+      }
+
+      #layer-switcher h3 {
+        margin: 3px;
+      }
+
+      #layer-switcher input {
+        float: right;
+      }
+
+      #layer-switcher label {
+        user-select: none;
+      }
+
+      #layer-switcher .checkbox-group {
+        clear: both;
+        padding: 3px;
       }
 
       blockquote {

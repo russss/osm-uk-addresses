@@ -8,6 +8,40 @@
 </header>
 <div id="map"></div>
 <div id="zoom-notice">Zoom in to see data</div>
+<div id="layer-switcher">
+  <h3>Layers</h3>
+  <div class="checkbox-group">
+    <label for="uprn">UPRN Points</label
+    ><input id="uprn" type="checkbox" data-layer="uprn" checked />
+  </div>
+  <div class="checkbox-group">
+    <label for="inspire_points">INSPIRE Address Points</label
+    ><input
+      id="inspire_points"
+      type="checkbox"
+      data-layer="addresses"
+      checked
+    />
+  </div>
+  <div class="checkbox-group">
+    <label for="split_buildings">Split Buildings</label
+    ><input
+      id="split_buildings"
+      type="checkbox"
+      data-layer="split_buildings,split_buildings_outline"
+      checked
+    />
+  </div>
+  <div class="checkbox-group">
+    <label for="inspire_polygons">INSPIRE polygons</label
+    ><input
+      id="inspire_polygons"
+      type="checkbox"
+      data-layer="inspire"
+      checked
+    />
+  </div>
+</div>
 <script>
   const map = new maplibregl.Map({container: 'map',
       style: "{{url_for('static', path="osm_addresses.json")}}",
@@ -24,7 +58,20 @@
     }
   }
 
-  map.on('zoomend', updateZoom)
-  map.on('load', updateZoom)
+  map.on('zoomend', updateZoom);
+  map.on('load', updateZoom);
+
+  document.querySelectorAll('#layer-switcher input').forEach((el)=> {
+    el.addEventListener('change', (e)=> {
+      const layers = e.target.getAttribute('data-layer');
+      for (var layer of layers.split(",")) {
+        if (e.target.checked) {
+          map.setLayoutProperty(layer, 'visibility', 'visible');
+        } else {
+          map.setLayoutProperty(layer, 'visibility', 'none');
+        }
+      }
+    })
+  });
 </script>
 {% endblock %}
