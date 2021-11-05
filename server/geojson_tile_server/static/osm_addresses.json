@@ -1765,7 +1765,15 @@
       "paint": { "circle-color": "rgba(32, 185, 23, 1)", "circle-radius": 3 }
     },
     {
-      "id": "inspire",
+      "id": "inspire_polygon",
+      "type": "fill",
+      "source": "inspire",
+      "source-layer": "inspire",
+      "minzoom": 16,
+      "paint": { "fill-color": "rgba(117, 131, 230, 0.05)" }
+    },
+    {
+      "id": "inspire_line",
       "type": "line",
       "source": "inspire",
       "source-layer": "inspire",
