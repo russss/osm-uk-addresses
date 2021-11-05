@@ -1,0 +1,16 @@
+{% extends "_base.html" %}
+{% block content %}
+<div class="content">
+    <h2>Layers</h2>
+    <table style="width: 500px;">
+      {% for layer in layers %}
+      <tr>
+        <td>{{layer}}</td>
+        <td><a href="/{{ layer }}/17/65492/43567.json">Example tile</a></td>
+        <td><a href="{{url_for('tilejson', layer=layer, format="json")}}">GeoJSON TileJSON</a></td>
+        <td><a href="{{url_for('tilejson', layer=layer, format="mvt")}}">MVT TileJSON</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+</div>
+{% endblock %}

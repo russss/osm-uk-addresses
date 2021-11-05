@@ -1,39 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>OSM Addresses</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <style>
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        font-family: Helvetica, sans-serif;
-      }
+{% extends "_base.html" %} {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', path='maplibre-gl.css') }}" />
+<script src="{{ url_for('static', path='maplibre-gl.js') }}"></script>
+{% endblock %} {% block content %}
+<header>
+  <h1>OSM UK Addresses</h1>
+  <a href="{{url_for('layers_list')}}">layers</a>
+</header>
+<div id="map"></div>
+<div id="zoom-notice">Zoom in to see data</div>
+<script>
+  const map = new maplibregl.Map({container: 'map',
+      style: "{{url_for('static', path="osm_addresses.json")}}",
+      customAttribution: "Contains OS data © Crown copyright &amp; database rights 2021",
+      center: [0, 52],
+      hash: true,
+      zoom: 9});
 
-      blockquote {
-        font-family: monospace;
-      }
+  function updateZoom() {
+    if (map.getZoom() > 16) {
+      document.getElementById('zoom-notice').style.display = 'none';
+    } else {
+      document.getElementById('zoom-notice').style.display = 'block';
+    }
+  }
 
-      body {
-        display: flex;
-        flex-direction: column;
-        background-color: #eee;
-      }
-
-      #map {
-        flex: 1;
-      }
-    </style>
-  </head>
-  <body>
-    <h2>Layers</h2>
-    <ul>
-      {% for layer in layers %}
-      <li>
-        <a href="/{{ layer }}/17/65492/43567.json">{{ layer }}</a>
-      </li>
-      {% endfor %}
-    </ul>
-  </body>
-</html>
+  map.on('zoomend', updateZoom)
+  map.on('load', updateZoom)
+</script>
+{% endblock %}
