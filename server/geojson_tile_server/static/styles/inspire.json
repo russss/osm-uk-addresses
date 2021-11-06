@@ -22,7 +22,7 @@
       "source-layer": "inspire",
       "minzoom": 16,
       "maxzoom": 21,
-      "paint": {"fill-color": "rgba(6, 0, 251, 0.06)", "fill-antialias": false}
+      "paint": {"fill-color": "#0000FF", "fill-opacity": 0.05, "fill-antialias": false}
     },
     {
       "id": "inspire_outline",
@@ -31,7 +31,7 @@
 			"source-layer": "inspire",
       "minzoom": 16,
       "maxzoom": 21,
-      "paint": {"line-color": "rgba(122, 119, 255, 1)"}
+      "paint": {"line-color": "#3333FF"}
     }
   ],
   "id": "inspire"
