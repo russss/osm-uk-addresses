@@ -1,0 +1,36 @@
+{
+  "version": 8,
+  "name": "INSPIRE",
+  "metadata": {"maputnik:renderer": "mbgljs"},
+  "sources": {
+    "inspire": {
+      "type": "vector",
+      "url": "https://osm-uk-addresses.russss.dev/inspire/{z}/{x}/{y}.mvt",
+			"minzoom": 16,
+			"maxzoom": 21
+    }
+  },
+  "sprite": "",
+  "glyphs": "https://orangemug.github.io/font-glyphs/glyphs/{fontstack}/{range}.pbf",
+  "layers": [
+    {
+      "id": "inspire_fill",
+      "type": "fill",
+      "source": "inspire",
+      "source-layer": "inspire",
+      "minzoom": 16,
+      "maxzoom": 21,
+      "paint": {"fill-color": "rgba(6, 0, 251, 0.06)", "fill-antialias": false}
+    },
+    {
+      "id": "inspire_outline",
+      "type": "line",
+      "source": "inspire",
+			"source-layer": "inspire",
+      "minzoom": 16,
+      "maxzoom": 21,
+      "paint": {"line-color": "rgba(122, 119, 255, 1)"}
+    }
+  ],
+  "id": "inspire"
+}
