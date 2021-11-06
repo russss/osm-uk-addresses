@@ -82,10 +82,12 @@ async def serve(request):
 
     srid = 3857
     if format == "json":
+        bounds = mercantile.bounds(x, y, z)
+        bbox_sql = f"ST_MakeEnvelope({bounds.west}, {bounds.south}, {bounds.east}, {bounds.north}, 4326)"
         srid = 4326
+    elif format == "mvt":
+        bbox_sql = f"ST_TileEnvelope({z}, {x}, {y}, margin => (64.0 / 4096))"
 
-    bounds = mercantile.bounds(x, y, z)
-    bbox_sql = f"ST_MakeEnvelope({bounds.west}, {bounds.south}, {bounds.east}, {bounds.north}, 4326)"
     sql = LAYERS[layer].format(bbox=bbox_sql, srid=srid)
 
     if format == "json":
