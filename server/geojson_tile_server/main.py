@@ -47,7 +47,7 @@ LAYERS = {
 
 FORMATS = {
     "json": {"mimetype": "application/json", "name": "GeoJSON"},
-    "mvt": {"mimetype": "application/vnd.vector-tile", "name": "Mapbox Vector Tiles"},
+    "mvt": {"mimetype": "application/vnd.mapbox-vector-tile", "name": "Mapbox Vector Tiles"},
 }
 
 
