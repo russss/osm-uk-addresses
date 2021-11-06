@@ -5,7 +5,9 @@
   "sources": {
     "inspire": {
       "type": "vector",
-      "url": "https://osm-uk-addresses.russss.dev/inspire/{z}/{x}/{y}.mvt",
+      "tiles": [
+				"https://osm-uk-addresses.russss.dev/inspire/{z}/{x}/{y}.mvt"
+			],
 			"minzoom": 16,
 			"maxzoom": 21
     }
