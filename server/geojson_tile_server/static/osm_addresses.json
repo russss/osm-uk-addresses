@@ -1754,7 +1754,7 @@
       "source": "addresses",
       "source-layer": "addresses",
       "minzoom": 16,
-      "paint": { "circle-color": "rgba(189, 23, 23, 1)", "circle-radius": 3 }
+      "paint": { "circle-color": "rgba(189, 0, 128, 1)", "circle-radius": 3 }
     },
     {
       "id": "uprn",
@@ -1762,7 +1762,7 @@
       "source": "uprn",
       "source-layer": "uprn",
       "minzoom": 16,
-      "paint": { "circle-color": "rgba(32, 185, 23, 1)", "circle-radius": 3 }
+      "paint": { "circle-color": "rgba(0, 189, 0, 1)", "circle-radius": 3 }
     },
     {
       "id": "inspire_polygon",
