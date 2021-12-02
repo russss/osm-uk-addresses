@@ -13,8 +13,21 @@ RETURNS NULL ON NULL INPUT;
 
 -- 5 invalid geometries in INSPIRE as of 2021-10-07. Just delete them.
 DELETE FROM inspire WHERE NOT ST_IsValid(wkb_geometry);
+-- 2 invalid geometries in Scottish INSPIRE as of 2021-11-29
+DELETE FROM inspire_scotland WHERE NOT ST_IsValid(wkb_geometry);
 
-CREATE MATERIALIZED VIEW inspire_filtered AS SELECT ogc_fid, inspireid, wkb_geometry
+-- Scotland has multipolygons, England doesn't, unify the types or it causes problems with indexes.
+-- (this is a bit slow, can we do this as part of the import process?)
+alter table inspire_england alter wkb_geometry type geometry(Geometry,27700);
+alter table inspire_scotland alter wkb_geometry type geometry(Geometry,27700);
+
+CREATE OR REPLACE VIEW inspire AS
+	SELECT inspireid::text, wkb_geometry AS wkb_geometry FROM inspire_england
+	UNION ALL
+	SELECT inspireid::text, wkb_geometry AS wkb_geometry FROM inspire_scotland;
+
+
+CREATE MATERIALIZED VIEW inspire_filtered AS SELECT inspireid, wkb_geometry::GEOMETRY(Geometry, 27700)
 	FROM inspire AS a
 	WHERE ST_AREA(wkb_geometry) < 10000
 		AND ST_Area(wkb_geometry) > 45
@@ -26,15 +39,15 @@ CREATE MATERIALIZED VIEW inspire_filtered AS SELECT ogc_fid, inspireid, wkb_geom
 				AND ST_Area(b.wkb_geometry) < 10000
 				AND ST_Area(b.wkb_geometry) > 45
 				AND (
-					(COALESCE(ST_Area(ST_Difference(b.wkb_geometry, a.wkb_geometry)), 0) < 1 AND b.ogc_fid < a.ogc_fid)
+					(COALESCE(ST_Area(ST_Difference(b.wkb_geometry, a.wkb_geometry)), 0) < 1 AND b.inspireid < a.inspireid)
 					OR compactness(a.wkb_geometry) < compactness(b.wkb_geometry)
 				)
-				AND b.ogc_fid != a.ogc_fid
+				AND b.inspireid != a.inspireid
 		);
 
 
 DROP MATERIALIZED VIEW split_buildings;
-CREATE MATERIALIZED VIEW split_buildings AS SELECT DISTINCT ON (inspireid) inspireid, geometry FROM
+CREATE MATERIALIZED VIEW split_buildings AS SELECT DISTINCT ON (inspireid) inspireid, geometry::GEOMETRY(Polygon, 27700) FROM
 		(SELECT inspire.inspireid,
 			(ST_Dump(ST_Buffer(ST_Intersection(inspire.wkb_geometry, buildings.wkb_geometry), 0.0))).geom AS geometry
 		FROM inspire_filtered AS inspire, buildings
@@ -43,6 +56,8 @@ CREATE MATERIALIZED VIEW split_buildings AS SELECT DISTINCT ON (inspireid) inspi
 		) a
 		WHERE ST_Area(geometry) > 10
 		ORDER BY inspireid, ST_Area(geometry) DESC;
+
+
 
 CREATE INDEX split_buildings_geom ON split_buildings USING gist(geometry);
 
