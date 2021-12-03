@@ -58,6 +58,26 @@ CREATE MATERIALIZED VIEW split_buildings AS SELECT DISTINCT ON (inspireid) inspi
 		ORDER BY inspireid, ST_Area(geometry) DESC;
 
 
+-- Generate a representative point for a geometry.
+-- The centroid is visually a little nicer here, so prefer this if it's contained by the polygon.
+-- Otherwise, use ST_PointOnSurface.
+CREATE FUNCTION representative_point(geom GEOMETRY) RETURNS GEOMETRY(Point)
+PARALLEL SAFE
+IMMUTABLE
+RETURNS NULL ON NULL INPUT
+AS $$
+DECLARE
+  centroid GEOMETRY;
+BEGIN
+  centroid := ST_Centroid(geom);
+  IF ST_Contains(geom, centroid) THEN
+	RETURN centroid;
+  ELSE
+	RETURN ST_PointOnSurface(geom);
+  END IF;
+END $$
+LANGUAGE plpgsql;
+
 
 CREATE INDEX split_buildings_geom ON split_buildings USING gist(geometry);
 

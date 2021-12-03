@@ -15,7 +15,12 @@ log = logging.getLogger(__name__)
 config = Config(".env")
 templates = Jinja2Templates(directory="templates")
 DATABASE_URL = config("DATABASE_URL")
-database = databases.Database(DATABASE_URL)
+
+database = databases.Database(
+    DATABASE_URL,
+    command_timeout=5,
+    server_settings={"application_name": "osm_addresses_tile_server"},
+)
 
 MIN_ZOOM = 16
 MAX_ZOOM = 21
@@ -24,9 +29,14 @@ fields = {}
 
 LAYERS = {
     "addresses": """
-        SELECT ST_Transform(ST_PointOnSurface(geometry), {srid}) AS geometry, inspireid
-            FROM split_buildings
+        SELECT ST_Transform(representative_point(geometry), {srid}) AS geometry, 
+                count(uprn.uprn) AS urpn_count,
+                CASE WHEN count(uprn.uprn) = 1 THEN max(uprn.uprn)::text ELSE NULL END AS uprn,
+                inspireid
+            FROM split_buildings, uprn
             WHERE ST_Intersects(ST_Transform({bbox}, 27700), geometry)
+            AND ST_Contains(split_buildings.geometry, uprn.geom)
+            GROUP BY split_buildings.geometry, split_buildings.inspireid
     """,
     "inspire": """
         SELECT ST_Transform(wkb_geometry, {srid}) AS geometry, inspireid
@@ -47,7 +57,10 @@ LAYERS = {
 
 FORMATS = {
     "json": {"mimetype": "application/json", "name": "GeoJSON"},
-    "mvt": {"mimetype": "application/vnd.mapbox-vector-tile", "name": "Mapbox Vector Tiles"},
+    "mvt": {
+        "mimetype": "application/vnd.mapbox-vector-tile",
+        "name": "Mapbox Vector Tiles",
+    },
 }
 
 
@@ -167,6 +180,7 @@ routes = [
 ]
 
 middleware = [Middleware(CORSMiddleware, allow_origins=["*"])]
+
 
 app = Starlette(
     routes=routes,
