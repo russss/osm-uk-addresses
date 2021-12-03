@@ -31,8 +31,8 @@ LAYERS = {
     "addresses": """
         SELECT ST_Transform(representative_point(geometry), {srid}) AS geometry, 
                 count(uprn.uprn) AS urpn_count,
-                CASE WHEN count(uprn.uprn) = 1 THEN max(uprn.uprn)::text ELSE NULL END AS uprn,
-                inspireid
+                CASE WHEN count(uprn.uprn) = 1 THEN max(uprn.uprn)::text ELSE NULL END AS "ref:GB:uprn",
+                inspireid AS "ref:GB:inspire"
             FROM split_buildings, uprn
             WHERE ST_Intersects(ST_Transform({bbox}, 27700), geometry)
             AND ST_Contains(split_buildings.geometry, uprn.geom)
