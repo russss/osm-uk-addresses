@@ -11,6 +11,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
 from asyncio.exceptions import TimeoutError
+from asyncpg.exceptions import PostgresSyntaxError
 
 log = logging.getLogger(__name__)
 config = Config(".env")
@@ -110,7 +111,7 @@ async def serve(request):
             SELECT json_build_object('type', 'FeatureCollection', 'features', json_agg(ST_AsGeoJSON(row)::json))
             FROM row"""
     elif format == "mvt":
-        field_sql = ", ".join(fields[layer])
+        field_sql = ", ".join(['"' + field + '"' for field in fields[layer]])
         layer_sql = f"""
             WITH mvtgeom AS (
                 WITH row AS ({sql})
@@ -124,6 +125,9 @@ async def serve(request):
     except TimeoutError:
         log.warn("Timeout while executing SQL query: %s", str(layer_sql))
         raise HTTPException(503, "Database timeout")
+    except PostgresSyntaxError:
+        log.warn("Invalid SQL query: %s", str(layer_sql))
+        raise HTTPException(500, "Database error")
     return Response(row[0], media_type=FORMATS[format]["mimetype"])
 
 
