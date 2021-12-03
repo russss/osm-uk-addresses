@@ -10,6 +10,7 @@ from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route, Mount
 from starlette.staticfiles import StaticFiles
+from asyncio.exceptions import TimeoutError
 
 log = logging.getLogger(__name__)
 config = Config(".env")
@@ -39,17 +40,17 @@ LAYERS = {
             GROUP BY split_buildings.geometry, split_buildings.inspireid
     """,
     "inspire": """
-        SELECT ST_Transform(wkb_geometry, {srid}) AS geometry, inspireid
+        SELECT ST_Transform(wkb_geometry, {srid}) AS geometry, inspireid AS "ref:GB:inspire"
             FROM inspire
             WHERE ST_Intersects(ST_Transform({bbox}, 27700), wkb_geometry)
     """,
     "split_buildings": """
-        SELECT ST_Transform(geometry, {srid}) AS geometry, inspireid
+        SELECT ST_Transform(geometry, {srid}) AS geometry, inspireid AS "ref:GB:inspire"
             FROM split_buildings
             WHERE ST_Intersects(ST_Transform({bbox}, 27700), geometry)
     """,
     "uprn": """
-        SELECT ST_Transform(geom, {srid}) AS geometry, uprn
+        SELECT ST_Transform(geom, {srid}) AS geometry, uprn AS "ref:GB:uprn"
             FROM uprn
             WHERE ST_Intersects(ST_Transform({bbox}, 27700), geom)
     """,
@@ -118,7 +119,11 @@ async def serve(request):
             SELECT ST_AsMVT(mvtgeom.*, '{layer}') FROM mvtgeom
         """
 
-    row = await database.fetch_one(query=layer_sql)
+    try:
+        row = await database.fetch_one(query=layer_sql)
+    except TimeoutError:
+        log.warn("Timeout while executing SQL query: %s", str(layer_sql))
+        raise HTTPException(503, "Database timeout")
     return Response(row[0], media_type=FORMATS[format]["mimetype"])
 
 
